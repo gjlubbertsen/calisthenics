@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="nl" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0E1116">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Calisthenics-circuit met geanimeerde oefeningen en automatische progressie.">
+  <title>Calisthenics</title>
+  <script>
+    // Thema zo vroeg mogelijk zetten, zodat het scherm niet verspringt.
+    (function () {
+      var t = 'dark';
+      try { t = (JSON.parse(localStorage.getItem('calisthenics-v2')) || {}).settings.theme || 'dark'; } catch (e) {}
+      if (t === 'system') t = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Welkom en instaptest -->
+<section id="screen-welcome" class="screen" hidden>
+  <div class="welcome">
+    <div class="welcome-fig" id="welcome-fig"></div>
+    <p class="kicker">Calisthenics</p>
+    <h1>Sterker met je eigen lichaam</h1>
+    <ul class="bullets">
+      <li><b>Kort circuit</b> van 7 oefeningen, ongeveer een kwartier.</li>
+      <li><b>Elke oefening in trappen</b>, van muur push-up tot pistol squat.</li>
+      <li><b>De app past je doelen aan</b> op wat je echt haalt.</li>
+    </ul>
+  </div>
+  <footer class="bottom stack">
+    <button id="welcome-start" class="btn primary big" type="button">Doe de instaptest</button>
+    <button id="welcome-skip" class="btn link" type="button">Sla over en begin onderaan</button>
+  </footer>
+</section>
+
+<section id="screen-onboard" class="screen" hidden>
+  <header class="top">
+    <p class="kicker" id="ob-progress">Instaptest 1 van 7</p>
+    <div class="segs" id="ob-segs"></div>
+    <h1 id="ob-title">Squat</h1>
+    <p class="muted" id="ob-group"></p>
+  </header>
+  <div class="content">
+    <div class="figcard" id="ob-fig"></div>
+    <p class="cue" id="ob-cue"></p>
+    <p class="label">Kies de trap die je nu al kunt doen</p>
+    <div id="ob-levels" class="levels"></div>
+    <div class="field">
+      <label class="label" for="ob-max" id="ob-max-label">Hoeveel haal je maximaal in één set?</label>
+      <div class="stepper">
+        <button type="button" class="step" data-step="-1" aria-label="Minder">−</button>
+        <input id="ob-max" type="number" inputmode="numeric" min="0" value="8">
+        <button type="button" class="step" data-step="1" aria-label="Meer">+</button>
+      </div>
+      <p class="muted small">Je startdoel wordt ongeveer 70% daarvan, zodat je alle sets goed haalt.</p>
+    </div>
+  </div>
+  <footer class="bottom">
+    <button id="ob-back" class="btn ghost" type="button">Terug</button>
+    <button id="ob-next" class="btn primary" type="button">Volgende</button>
+  </footer>
+</section>
+
+<!-- Start -->
+<section id="screen-home" class="screen" hidden>
+  <header class="top row-between">
+    <div>
+      <p class="kicker" id="home-date"></p>
+      <h1 id="home-title">Klaar om te trainen?</h1>
+    </div>
+    <div class="chip flame" id="home-streak" hidden></div>
+  </header>
+  <div class="content">
+    <div class="card week" id="home-week"></div>
+    <div class="card hero">
+      <p class="label">Training van vandaag</p>
+      <p class="hero-time"><span id="home-min">15</span><small>min</small></p>
+      <p class="muted" id="home-meta"></p>
+      <div class="seg-control" id="home-rounds" role="group" aria-label="Aantal rondes"></div>
+      <button id="home-start" class="btn primary big" type="button">Start training</button>
+    </div>
+    <div class="row-between section-head">
+      <h2>Jouw circuit</h2>
+      <span class="muted small">Tik voor uitleg</span>
+    </div>
+    <ul id="home-plan" class="plan"></ul>
+  </div>
+</section>
+
+<!-- Voortgang -->
+<section id="screen-progress" class="screen" hidden>
+  <header class="top">
+    <p class="kicker">Voortgang</p>
+    <h1>Waar je staat</h1>
+  </header>
+  <div class="content">
+    <div class="tiles" id="progress-tiles"></div>
+    <div class="card">
+      <h2>Trainingen per week</h2>
+      <p class="muted small" id="progress-week-sub"></p>
+      <div id="progress-weeks"></div>
+    </div>
+    <h2 class="section-head">Per oefening</h2>
+    <div id="progress-list"></div>
+    <h2 class="section-head">Badges</h2>
+    <div class="badges" id="progress-badges"></div>
+  </div>
+</section>
+
+<!-- Historie -->
+<section id="screen-history" class="screen" hidden>
+  <header class="top">
+    <p class="kicker">Historie</p>
+    <h1>Je trainingen</h1>
+  </header>
+  <div class="content">
+    <div class="card" id="history-cal"></div>
+    <div id="history-list"></div>
+  </div>
+</section>
+
+<!-- Instellingen -->
+<section id="screen-settings" class="screen" hidden>
+  <header class="top">
+    <p class="kicker">Instellingen</p>
+    <h1>Maak het van jou</h1>
+  </header>
+  <div class="content">
+    <div class="card">
+      <h2>Weergave</h2>
+      <div class="seg-control" id="s-theme" role="group" aria-label="Thema">
+        <button type="button" data-theme-opt="dark">Donker</button>
+        <button type="button" data-theme-opt="light">Licht</button>
+        <button type="button" data-theme-opt="system">Systeem</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Training</h2>
+      <div class="setting"><label for="s-goal">Weekdoel (trainingen)</label><input id="s-goal" type="number" inputmode="numeric" data-key="weeklyGoal"></div>
+      <div class="setting"><label for="s-rounds">Rondes (sets)</label><input id="s-rounds" type="number" inputmode="numeric" data-key="rounds"></div>
+      <div class="setting"><label for="s-work">Werk per oefening (sec)</label><input id="s-work" type="number" inputmode="numeric" step="5" data-key="work"></div>
+      <div class="setting"><label for="s-rest">Rust tussen oefeningen (sec)</label><input id="s-rest" type="number" inputmode="numeric" step="5" data-key="rest"></div>
+      <div class="setting"><label for="s-roundrest">Extra rust tussen rondes (sec)</label><input id="s-roundrest" type="number" inputmode="numeric" step="5" data-key="roundRest"></div>
+      <div class="setting"><label for="s-warmup">Warming-up (sec, 0 = uit)</label><input id="s-warmup" type="number" inputmode="numeric" step="15" data-key="warmup"></div>
+      <p class="muted small" id="s-duration"></p>
+    </div>
+    <div class="card">
+      <h2>Tijdens de training</h2>
+      <div class="setting"><label for="s-sound">Piepjes</label><input id="s-sound" class="switch" type="checkbox" data-key="sound"></div>
+      <div class="setting"><label for="s-voice">Gesproken coach</label><input id="s-voice" class="switch" type="checkbox" data-key="voice"></div>
+      <div class="setting"><label for="s-vibrate">Trillen</label><input id="s-vibrate" class="switch" type="checkbox" data-key="vibrate"></div>
+      <div class="setting"><label for="s-keep">Scherm aan houden</label><input id="s-keep" class="switch" type="checkbox" data-key="wakeLock"></div>
+    </div>
+    <div class="card">
+      <h2>Data</h2>
+      <p class="muted small">Alles staat alleen in deze browser op dit toestel. Maak af en toe een export.</p>
+      <div class="row">
+        <button id="s-export" class="btn ghost" type="button">Exporteer</button>
+        <label class="btn ghost" for="s-import">Importeer</label>
+        <input id="s-import" type="file" accept="application/json" hidden>
+      </div>
+      <button id="s-install" class="btn ghost" type="button" hidden>Installeer als app</button>
+      <button id="s-redo" class="btn ghost" type="button">Instaptest opnieuw doen</button>
+      <button id="s-reset" class="btn danger" type="button">Alles wissen</button>
+    </div>
+    <p class="muted small center">Calisthenics 2.0</p>
+  </div>
+</section>
+
+<!-- Training -->
+<section id="screen-workout" class="screen workout" hidden>
+  <div class="wo-top">
+    <button id="wo-stop" class="icon-btn" type="button" aria-label="Stop training">✕</button>
+    <p id="wo-phase" class="wo-phase"></p>
+    <p id="wo-total" class="wo-total" aria-label="Resterende tijd"></p>
+  </div>
+  <div class="segs" id="wo-segs" aria-hidden="true"></div>
+  <div class="wo-fig" id="wo-fig"></div>
+  <div class="wo-info">
+    <p class="kicker" id="wo-kicker"></p>
+    <h1 id="wo-name"></h1>
+    <p id="wo-target" class="target"></p>
+  </div>
+  <div class="ring">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+      <circle class="ring-bg" cx="60" cy="60" r="54"/>
+      <circle class="ring-fg" id="wo-ring" cx="60" cy="60" r="54" transform="rotate(-90 60 60)"/>
+    </svg>
+    <div class="clock" id="wo-clock">0:00</div>
+  </div>
+  <div class="wo-extra">
+    <p id="wo-cue" class="cue"></p>
+    <ul id="wo-warmup" class="warmup" hidden></ul>
+    <div id="wo-log" class="log" hidden>
+      <p id="wo-log-label" class="label">Gehaald?</p>
+      <div class="stepper">
+        <button type="button" class="step" data-step="-1" aria-label="Minder">−</button>
+        <input id="wo-log-val" type="number" inputmode="numeric" min="0" value="0">
+        <button type="button" class="step" data-step="1" aria-label="Meer">+</button>
+      </div>
+    </div>
+  </div>
+  <footer class="wo-bottom">
+    <button id="wo-pause" class="btn ghost" type="button">Pauze</button>
+    <button id="wo-skip" class="btn primary" type="button">Klaar</button>
+  </footer>
+</section>
+
+<!-- Samenvatting -->
+<section id="screen-summary" class="screen" hidden>
+  <header class="top">
+    <p class="kicker">Klaar</p>
+    <h1>Controleer je sets</h1>
+    <p class="muted">Pas aan wat anders ging. Lege sets tellen niet mee.</p>
+  </header>
+  <div class="content" id="summary-list"></div>
+  <footer class="bottom">
+    <button id="sum-discard" class="btn ghost" type="button">Niet opslaan</button>
+    <button id="sum-save" class="btn primary" type="button">Opslaan</button>
+  </footer>
+</section>
+
+<!-- Resultaat -->
+<section id="screen-result" class="screen" hidden>
+  <header class="top">
+    <p class="kicker">Opgeslagen</p>
+    <h1 id="res-title">Goed gedaan</h1>
+    <p class="muted" id="res-sub"></p>
+  </header>
+  <div class="content">
+    <div id="result-badges"></div>
+    <div id="result-list"></div>
+  </div>
+  <footer class="bottom">
+    <button id="res-done" class="btn primary big" type="button">Naar start</button>
+  </footer>
+</section>
+
+<!-- Uitleg per oefening -->
+<div id="sheet" class="sheet" hidden>
+  <div class="sheet-card" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+    <button id="sheet-close" class="icon-btn sheet-close" type="button" aria-label="Sluiten">✕</button>
+    <div id="sheet-body"></div>
+  </div>
+</div>
+
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<nav class="tabs" id="tabs" hidden>
+  <button data-screen="home" type="button">
+    <svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z"/></svg>Start</button>
+  <button data-screen="progress" type="button">
+    <svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-8M21 20H3"/></svg>Voortgang</button>
+  <button data-screen="history" type="button">
+    <svg viewBox="0 0 24 24"><path d="M5 6h14a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zM4 11h16M8 3v4M16 3v4"/></svg>Historie</button>
+  <button data-screen="settings" type="button">
+    <svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Instellingen</button>
+</nav>
+
+<script src="data.js"></script>
+<script src="figures.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
